@@ -1,28 +1,21 @@
 <!-- -_-  -->
 <details>
-<summary>Description</summary>
+<summary>简介</summary>
 
-create a nestjs project
-
-</details>
-
-<!-- -_-  -->
-<details>
-<summary>Installation</summary>
-
-```bash
-$ npm install
-```
+生成一个基于 nestjs 的项目
 
 </details>
 
 <!-- -_-  -->
 <details>
-<summary>初始化</summary>
+<summary>初始化项目</summary>
 
 ```bash
 npm i -g @nestjs/cli
 nest new project-name
+
+cd project-name
+npm install
 ```
 
 </details>
@@ -149,7 +142,21 @@ module.exports = {
 
 <!-- -_-  -->
 <details>
-<summary>Running the app</summary>
+<summary>添加 git 忽略文件</summary>
+
+`git rm -r --cached dist`
+
+```
+# .gitignore
+node_modules
+/dist
+```
+
+</details>
+
+<!-- -_-  -->
+<details>
+<summary>项目启动</summary>
 
 ```bash
 # development
@@ -166,42 +173,5 @@ $ npm run start:prod
 
 <!-- -_-  -->
 <details>
-<summary>Test</summary>
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-</details>
-
-<!-- -_-  -->
-<details>
-<summary>Support</summary>
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-</details>
-
-<!-- -_-  -->
-<details>
-<summary>Stay in touch</summary>
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-</details>
-<!-- -_-  -->
-<details>
-<summary>License</summary>
-
-Nest is [MIT licensed](LICENSE).
-
+<summary>打包部署</summary>
 </details>
