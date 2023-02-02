@@ -156,6 +156,53 @@ node_modules
 
 <!-- -_-  -->
 <details>
+<summary>集成Swagger自动生成接口文档</summary>
+
+### 安装
+
+`npm install @nestjs/swagger swagger-ui-express --save`
+
+### 配置
+
+`./main.ts`
+
+```typescript
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+
+// Swagger
+const options = new DocumentBuilder()
+  .setTitle('create-nestjs-project')
+  .setDescription('create-nestjs-project')
+  .setTermsOfService('https://docs.nestjs.cn/8/introduction')
+  .setVersion('0.0.1')
+  .build();
+const document = SwaggerModule.createDocument(app, options);
+SwaggerModule.setup('/doc/swagger-api', app, document);
+```
+
+### 使用
+
+`./system.controller.ts`
+
+```typescript
+import { ApiTags, ApiParam } from '@nestjs/swagger';
+
+@ApiTags('系统设置')
+
+@ApiParam({ name: 'id', description: 'id', required: true, type: 'string' })
+remove(@Param() param: { id: string }) {
+  return this.systemService.remove(param);
+}
+```
+
+### 预览文档
+
+`/doc/swagger-api`
+
+</details>
+
+<!-- -_-  -->
+<details>
 <summary>命令行创建 modules</summary>
 
 `./scripts/g.sh`
