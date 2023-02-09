@@ -225,6 +225,41 @@ echo ""
 
 <!-- -_-  -->
 <details>
+<summary>路由前缀和接口版本控制</summary>
+
+### 配置
+
+`./main.ts`
+
+```
+app.setGlobalPrefix('api');
+```
+
+`版本控制`
+
+`./main.ts`
+
+```
+import { VersioningType } from '@nestjs/common';
+app.enableVersioning({
+  type: VersioningType.URI,
+  defaultVersion: '1',
+});
+```
+
+### 使用
+
+`*.controller.ts`
+
+```
+@Controller({ path: 'system', version: '1' })
+// /api/v1/system
+```
+
+</details>
+
+<!-- -_-  -->
+<details>
 <summary>项目启动</summary>
 
 ```bash
