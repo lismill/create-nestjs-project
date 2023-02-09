@@ -1,35 +1,42 @@
-import { Controller, Get, Post, Put, Delete, Param } from '@nestjs/common';
-import { ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { SystemService } from './system.service';
+import { CreateSystemDto } from './dto/create-system.dto';
+import { UpdateSystemDto } from './dto/update-system.dto';
 
-@ApiTags('系统设置')
 @Controller('system')
 export class SystemController {
   constructor(private readonly systemService: SystemService) {}
+
+  @Post()
+  create(@Body() createSystemDto: CreateSystemDto) {
+    return this.systemService.create(createSystemDto);
+  }
+
   @Get()
   findAll() {
     return this.systemService.findAll();
   }
 
   @Get(':id')
-  @ApiParam({ name: 'id', description: 'id', required: true, type: 'string' })
-  findOneById(@Param() param: { id: string }) {
-    return this.systemService.findOneById(param);
+  findOne(@Param('id') id: string) {
+    return this.systemService.findOne(+id);
   }
 
-  @Post()
-  create() {
-    return this.systemService.create();
-  }
-
-  @Put()
-  update() {
-    return this.systemService.update();
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateSystemDto: UpdateSystemDto) {
+    return this.systemService.update(+id, updateSystemDto);
   }
 
   @Delete(':id')
-  @ApiParam({ name: 'id', description: 'id', required: true, type: 'string' })
-  remove(@Param() param: { id: string }) {
-    return this.systemService.remove(param);
+  remove(@Param('id') id: string) {
+    return this.systemService.remove(+id);
   }
 }

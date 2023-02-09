@@ -1,20 +1,28 @@
-import { Injectable, Param } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { CreateSystemDto } from './dto/create-system.dto';
+import { UpdateSystemDto } from './dto/update-system.dto';
 
 @Injectable()
 export class SystemService {
+  create(createSystemDto: CreateSystemDto) {
+    console.log(createSystemDto);
+    return 'This action adds a new system';
+  }
+
   findAll() {
-    return 'findAll';
+    return `This action returns all system`;
   }
-  findOneById(@Param() param: { id: string }) {
-    return `findOneById ${param.id}`;
+
+  findOne(id: number) {
+    return `This action returns a #${id} system`;
   }
-  create() {
-    return 'create';
+
+  update(id: number, updateSystemDto: UpdateSystemDto) {
+    console.log(updateSystemDto);
+    return `This action updates a #${id} system`;
   }
-  update() {
-    return 'update';
-  }
-  remove(@Param() param: { id: string }) {
-    return `remove ${param.id}`;
+
+  remove(id: number) {
+    return `This action removes a #${id} system`;
   }
 }

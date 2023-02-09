@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { SystemController } from './system.controller';
 import { SystemService } from './system.service';
+import { SystemController } from './system.controller';
 
 @Module({
   controllers: [SystemController],
