@@ -260,6 +260,96 @@ app.enableVersioning({
 
 <!-- -_-  -->
 <details>
+<summary>配置信息与环境变量</summary>
+
+### 安装依赖
+
+`npm install --save-dev @nestjs/config cross-env`
+
+### 配置
+
+`./package.json`
+
+```
+"start": "npm run start:development",
+"start:development": "cross-env NODE_ENV=development nest start --watch",
+"start:production": "cross-env NODE_ENV=production nest start",
+"build": "npm run build:development",
+"build:development": "cross-env NODE_ENV=development nest build",
+"build:production": "cross-env NODE_ENV=production nest build",
+```
+
+`./main.ts`
+
+```
+const app = await NestFactory.create(AppModule);
+
+// Prefix
+app.setGlobalPrefix(process.env.PREFIX);
+
+// Version
+app.enableVersioning({
+  type: VersioningType.URI,
+  defaultVersion: process.env.VERSION,
+});
+```
+
+`./app.module.ts`
+
+```
+import { ConfigModule } from '@nestjs/config';
+
+ConfigModule.forRoot({
+  envFilePath: [`.env.${process.env.NODE_ENV}`, '.env'],
+  isGlobal: true,
+}),
+```
+
+`.env`
+
+```
+ENV = 'development'
+NAMES = '.env'
+
+PORT = 3789
+VERSION = 1
+PREFIX = 'api'
+```
+
+`.env.development`
+
+```
+ENV = 'development'
+NAME = '.env.development'
+```
+
+`.env.production`
+
+```
+ENV = 'production'
+NAME = '.env.production'
+```
+
+`.gitignore`
+
+```
+.env
+.env.development
+.env.production
+```
+
+### 使用
+
+```
+console.log(process.env.PREFIX);
+console.log(process.env.ENV);
+console.log(process.env.NAMES);
+```
+
+</details>
+
+<!-- -_-  -->
+<details>
 <summary>项目启动</summary>
 
 ```bash

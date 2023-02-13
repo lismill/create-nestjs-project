@@ -7,12 +7,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Prefix
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix(process.env.PREFIX);
 
   // Version
   app.enableVersioning({
     type: VersioningType.URI,
-    defaultVersion: '1',
+    defaultVersion: process.env.VERSION,
   });
 
   // Swagger
@@ -25,6 +25,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('/doc/swagger-api', app, document);
 
-  await app.listen(3789);
+  await app.listen(process.env.PORT);
 }
 bootstrap();
