@@ -91,7 +91,7 @@ module.exports = {
 
 `.eslintrc.js`
 
-```
+```js
 module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -166,7 +166,7 @@ node_modules
 
 `./main.ts`
 
-```typescript
+```ts
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 // Swagger
@@ -184,7 +184,7 @@ SwaggerModule.setup('/doc/swagger-api', app, document);
 
 `./system.controller.ts`
 
-```typescript
+```ts
 import { ApiTags, ApiParam } from '@nestjs/swagger';
 
 @ApiTags('系统设置')
@@ -231,7 +231,7 @@ echo ""
 
 `./main.ts`
 
-```
+```ts
 app.setGlobalPrefix('api');
 ```
 
@@ -239,7 +239,7 @@ app.setGlobalPrefix('api');
 
 `./main.ts`
 
-```
+```ts
 import { VersioningType } from '@nestjs/common';
 app.enableVersioning({
   type: VersioningType.URI,
@@ -251,7 +251,7 @@ app.enableVersioning({
 
 `*.controller.ts`
 
-```
+```ts
 @Controller({ path: 'system', version: '1' })
 // /api/v1/system
 ```
@@ -270,7 +270,7 @@ app.enableVersioning({
 
 `./package.json`
 
-```
+```json
 "start": "npm run start:development",
 "start:development": "cross-env NODE_ENV=development nest start --watch",
 "start:production": "cross-env NODE_ENV=production nest start",
@@ -281,7 +281,7 @@ app.enableVersioning({
 
 `./main.ts`
 
-```
+```ts
 const app = await NestFactory.create(AppModule);
 
 // Prefix
@@ -296,7 +296,7 @@ app.enableVersioning({
 
 `./app.module.ts`
 
-```
+```ts
 import { ConfigModule } from '@nestjs/config';
 
 ConfigModule.forRoot({
@@ -340,7 +340,7 @@ NAME = '.env.production'
 
 ### 使用
 
-```
+```ts
 console.log(process.env.PREFIX);
 console.log(process.env.ENV);
 console.log(process.env.NAMES);
@@ -348,6 +348,103 @@ console.log(process.env.NAMES);
 
 </details>
 
+<!-- -_-  -->
+<details>
+<summary>配置统一数据格式返回</summary>
+
+### 配置
+
+`./interceptor/transform.interceptor.ts`
+
+```ts
+import {
+  Injectable,
+  NestInterceptor,
+  CallHandler,
+  ExecutionContext,
+} from '@nestjs/common';
+import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+interface Response<T> {
+  data: T;
+}
+@Injectable()
+export class TransformInterceptor<T>
+  implements NestInterceptor<T, Response<T>>
+{
+  intercept(
+    context: ExecutionContext,
+    next: CallHandler<T>,
+  ): Observable<Response<T>> {
+    return next.handle().pipe(
+      map((data) => {
+        return {
+          code: 0,
+          message: '请求成功',
+          data,
+        };
+      }),
+    );
+  }
+}
+```
+
+`./filters/http-exception.filter.ts`
+
+```ts
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
+
+@Catch(HttpException)
+export class HttpExceptionFilter implements ExceptionFilter {
+  catch(exception: HttpException, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse();
+    const request = ctx.getRequest();
+
+    const message = exception.message;
+    Logger.log('错误提示', message);
+    const errorResponse = {
+      code: -1,
+      message: '请求失败',
+      timestamp: Date.now(),
+      url: request.originalUrl,
+      data: {
+        error: message,
+      },
+    };
+    const status =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
+    // 设置返回的状态码、请求头、发送错误信息
+    response.status(status);
+    response.header('Content-Type', 'application/json; charset=utf-8');
+    response.send(errorResponse);
+  }
+}
+```
+
+`./main.ts`
+
+```ts
+import { TransformInterceptor } from './interceptor/transform.interceptor';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
+
+// transform.interceptor
+app.useGlobalInterceptors(new TransformInterceptor());
+
+// http-exception.filter
+app.useGlobalFilters(new HttpExceptionFilter());
+```
+
+</details>
 <!-- -_-  -->
 <details>
 <summary>项目启动</summary>
