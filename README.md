@@ -156,6 +156,35 @@ node_modules
 
 <!-- -_-  -->
 <details>
+<summary>配置 VSCode 断点调试</summary>
+
+### 配置
+
+`.vscode/launch.json`
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch NestJS",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/src/main.ts"
+    }
+  ]
+}
+```
+
+### 启动
+
+`Press F5`
+
+</details>
+
+<!-- -_-  -->
+<details>
 <summary>集成Swagger自动生成接口文档</summary>
 
 ### 安装
