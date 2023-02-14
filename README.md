@@ -445,6 +445,219 @@ app.useGlobalFilters(new HttpExceptionFilter());
 ```
 
 </details>
+
+<!-- -_-  -->
+<details>
+<summary>NestJS + TypeORM 增删改查</summary>
+
+### 安装依赖
+
+`npm install --save typeorm @nestjs/typeorm class-validator mysql2`
+
+### 配置使用
+
+`./app.module.ts`
+
+```ts
+// TypeOrmModule
+TypeOrmModule.forRoot({
+  type: 'mysql',
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT as unknown as number,
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+  entities: ['dist/**/*.entity{.ts,.js}'],
+  autoLoadEntities: process.env.DB_AUTOLOADENTITIES === 'true',
+  synchronize: process.env.DB_SYNCHRONIZE === 'true',
+}),
+```
+
+`./src/entity/index.ts`
+
+```ts
+import {
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+
+export abstract class BaseEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @CreateDateColumn()
+  createDate: Date;
+
+  @UpdateDateColumn()
+  updateDate: Date;
+
+  @DeleteDateColumn()
+  deleteDate: Date;
+}
+```
+
+`./src/modules/user/entities/user.entity.ts`
+
+```ts
+import { Entity, Column } from 'typeorm';
+import { BaseEntity } from '../../../entity/index';
+
+@Entity({ name: 'user' })
+export class User extends BaseEntity {
+  @Column({ length: 16, comment: '名称', unique: true })
+  name: string;
+
+  @Column({ comment: '年龄', nullable: true })
+  age: number;
+
+  @Column({ length: 16, comment: '城市', nullable: true })
+  city: string;
+}
+```
+
+`./src/modules/user/dto/create-user.dto.ts`
+
+```ts
+import { IsNotEmpty, IsString } from 'class-validator';
+export class CreateUserDto {
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  age: number;
+
+  city: string;
+}
+```
+
+`./src/modules/user/dto/update-user.dto.ts`
+
+```ts
+import { PartialType } from '@nestjs/swagger';
+import { CreateUserDto } from './create-user.dto';
+
+export class UpdateUserDto extends PartialType(CreateUserDto) {
+  id: number;
+}
+```
+
+`./src/modules/user/user.module.ts`
+
+```ts
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
+import { UserService } from './user.service';
+import { UserController } from './user.controller';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([User])],
+  controllers: [UserController],
+  providers: [UserService],
+})
+export class UserModule {}
+```
+
+`./src/modules/user/user.controller.ts`
+
+```ts
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
+import { UserService } from './user.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+
+@Controller('user')
+export class UserController {
+  constructor(private readonly userService: UserService) {}
+
+  @Post()
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.userService.create(createUserDto);
+  }
+
+  @Get()
+  findAll() {
+    return this.userService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.userService.findOne(+id);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.userService.update(+id, updateUserDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.userService.remove(+id);
+  }
+}
+```
+
+`./src/modules/user/user.service.ts`
+
+```ts
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { User } from './entities/user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+
+@Injectable()
+export class UserService {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+
+  async create(createUserDto: CreateUserDto) {
+    return this.userRepository.save(createUserDto);
+  }
+
+  async findAll() {
+    return await this.userRepository.find();
+  }
+
+  async findOne(id: number) {
+    return await this.userRepository.find({ where: { id } });
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    let result = await this.userRepository.findOne({ where: { id } });
+    if (!result) {
+      throw new HttpException('DATA_NOT_FOUND', HttpStatus.BAD_REQUEST);
+    }
+    delete updateUserDto?.id;
+    result = { ...result, ...updateUserDto };
+    return await this.userRepository.save(result);
+  }
+
+  async remove(id: number) {
+    const result = await this.userRepository.findOne({ where: { id } });
+    if (!result) {
+      throw new HttpException('DATA_NOT_FOUND', HttpStatus.BAD_REQUEST);
+    }
+    return await this.userRepository.remove(result);
+  }
+}
+```
+
+</details>
 <!-- -_-  -->
 <details>
 <summary>项目启动</summary>
