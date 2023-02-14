@@ -10,12 +10,15 @@
 <details>
 <summary>初始化项目</summary>
 
+### 配置
+
 ```bash
 npm i -g @nestjs/cli
 nest new project-name
 
 cd project-name
 npm install
+
 ```
 
 </details>
@@ -23,6 +26,8 @@ npm install
 <!-- -_-  -->
 <details>
 <summary>Git 提交规范、提交信息校验、lint-staged</summary>
+
+### 配置
 
 ```bash
 # 提交规范
@@ -144,6 +149,8 @@ module.exports = {
 <details>
 <summary>添加 git 忽略文件</summary>
 
+### 配置
+
 `git rm -r --cached dist`
 
 ```
@@ -233,6 +240,8 @@ remove(@Param() param: { id: string }) {
 <!-- -_-  -->
 <details>
 <summary>命令行创建 modules</summary>
+
+### 配置
 
 `./scripts/g.sh`
 
@@ -690,6 +699,8 @@ export class UserService {
 <!-- -_-  -->
 <details>
 <summary>项目启动</summary>
+
+### 配置
 
 ```bash
 # development
