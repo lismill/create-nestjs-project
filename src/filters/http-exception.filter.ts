@@ -22,7 +22,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
       timestamp: Date.now(),
       url: request.originalUrl,
       data: {
-        error: message,
+        code: exception.getStatus(),
+        message,
       },
     };
     const status =

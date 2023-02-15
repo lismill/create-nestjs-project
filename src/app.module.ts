@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './modules/auth/auth.module';
+import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
 import { CommonModule } from './modules/common/common.module';
 import { SystemModule } from './modules/system/system.module';
 import { UserModule } from './modules/user/user.module';
@@ -24,11 +27,17 @@ import { UserModule } from './modules/user/user.module';
       autoLoadEntities: process.env.DB_AUTOLOADENTITIES === 'true',
       synchronize: process.env.DB_SYNCHRONIZE === 'true',
     }),
+    AuthModule,
     CommonModule,
     SystemModule,
     UserModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

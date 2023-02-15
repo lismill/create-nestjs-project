@@ -10,11 +10,11 @@ export abstract class BaseEntity {
   id: number;
 
   @CreateDateColumn()
-  createDate: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updateDate: Date;
+  updateAt: Date;
 
   @DeleteDateColumn()
-  deleteDate: Date;
+  deleteAt: Date;
 }

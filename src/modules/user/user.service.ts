@@ -2,15 +2,15 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { User } from './entities/user.entity';
+import { UserEntity } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -22,7 +22,15 @@ export class UserService {
   }
 
   async findOne(id: number) {
-    return await this.userRepository.find({ where: { id } });
+    return await this.userRepository.findOne({ where: { id } });
+  }
+
+  async findPasswordByName(params: any) {
+    return await this.userRepository
+      .createQueryBuilder()
+      .select('*')
+      .where('username = :username', params)
+      .getRawOne();
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {

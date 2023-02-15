@@ -696,6 +696,305 @@ export class UserService {
 ```
 
 </details>
+
+<!-- -_-  -->
+<details>
+<summary>配置 JWT 接口认证</summary>
+
+### 安装依赖
+
+```bash
+npm install @nestjs/jwt @nestjs/passport passport passport-jwt passport-local --save
+```
+
+### 配置
+
+`./app.module.ts`
+
+```ts
+import { AuthModule } from './modules/auth/auth.module';
+
+@Module({
+  imports: [AuthModule]
+})
+```
+
+`./modules/auth/auth.module.ts`
+
+```ts
+import { Module } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { UserModule } from '../user/user.module';
+import { UserService } from '../user/user.service';
+import { UserEntity } from '../user/entities/user.entity';
+
+import { LocalStrategy } from './local.strategy';
+import { JwtStrategy } from './jwt.strategy';
+
+import * as dotenv from 'dotenv';
+dotenv.config();
+
+@Module({
+  imports: [
+    UserModule,
+    TypeOrmModule.forFeature([UserEntity]),
+    PassportModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: process.env.JWT_EXPIRES },
+    }),
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, UserService, LocalStrategy, JwtStrategy],
+  exports: [AuthService],
+})
+export class AuthModule {}
+```
+
+`./modules/auth/auth.controller.ts`
+
+```ts
+import {
+  Controller,
+  Body,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { LocalAuthGuard } from './local-auth.guard';
+
+@ApiTags('auth')
+@Controller('auth')
+export class AuthController {
+  constructor(private readonly authService: AuthService) {}
+
+  /**
+   * 登录
+   * @param req 用户信息
+   * @returns
+   */
+  @UseGuards(LocalAuthGuard)
+  @Post('/login')
+  async login(@Body() req: any) {
+    return this.authService.login(req);
+  }
+
+  /**
+   * 校验 token
+   * @param req 用户信息
+   * @returns
+   */
+  @UseGuards(JwtAuthGuard)
+  @Get('/check')
+  getProfile(@Request() req: any) {
+    return req.user;
+  }
+}
+```
+
+`./modules/auth/auth.service.ts`
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+
+import { UserService } from '../user/user.service';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  /**
+   * 校验用户
+   * @param username 用户名
+   * @param password 密码
+   * @returns
+   */
+  async validateUser(username: string, password: string): Promise<any> {
+    const result = await this.userService.findPasswordByName({ username });
+    if (!result) return null;
+    return result?.password === password ? result : null;
+  }
+
+  /**
+   * 登录
+   * @param user 用户信息
+   * @returns
+   */
+  async login(user: any): Promise<any> {
+    const access_token = this.jwtService.sign(user);
+    const result = await this.userService.findPasswordByName({
+      username: user.username,
+    });
+    delete result.password;
+    return { ...result, access_token };
+  }
+}
+```
+
+`./modules/auth/jwt.strategy.ts`
+
+```ts
+import { Strategy, ExtractJwt } from 'passport-jwt';
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+
+import * as dotenv from 'dotenv';
+dotenv.config();
+
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor() {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: process.env.JWT_SECRET,
+    });
+  }
+
+  async validate(payload: any) {
+    return payload;
+  }
+}
+```
+
+`./modules/auth/jwt-auth.guard.ts`
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {}
+```
+
+`./modules/auth/local.strategy.ts`
+
+```ts
+import { Strategy } from 'passport-local';
+import { PassportStrategy } from '@nestjs/passport';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { AuthService } from './auth.service';
+
+@Injectable()
+export class LocalStrategy extends PassportStrategy(Strategy) {
+  constructor(private readonly authService: AuthService) {
+    super();
+  }
+
+  async validate(username: string, password: string): Promise<any> {
+    const user = await this.authService.validateUser(username, password);
+    if (!user) throw new UnauthorizedException();
+    return user;
+  }
+}
+```
+
+`./modules/auth/local-auth.guard.ts`
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+@Injectable()
+export class LocalAuthGuard extends AuthGuard('local') {}
+```
+
+`./modules/user/user.service.ts`
+
+```ts
+async findPasswordByName(params: any) {
+  return await this.userRepository
+    .createQueryBuilder()
+    .select('*')
+    .where('username = :username', params)
+    .getRawOne();
+}
+```
+
+### 使用
+
+`*.controller.ts`
+
+```ts
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { LocalAuthGuard } from './local-auth.guard';
+
+@UseGuards(LocalAuthGuard)
+@Post('/login')
+async login() {
+  return "login";
+}
+
+@UseGuards(JwtAuthGuard)
+@Get('/check')
+getProfile() {
+  return "check";
+}
+```
+
+### 开启全局接口认证
+
+`./src/decorator/public.ts`
+
+```ts
+import { SetMetadata } from '@nestjs/common';
+
+export const IS_PUBLIC_KEY = 'isPublic';
+export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
+```
+
+`./modules/auth/jwt-auth.guard.ts`
+
+```ts
+import { ExecutionContext, Injectable } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { AuthGuard } from '@nestjs/passport';
+import { IS_PUBLIC_KEY } from 'src/decorator/public';
+
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  constructor(private reflector: Reflector) {
+    super();
+  }
+
+  canActivate(context: ExecutionContext) {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) {
+      return true;
+    }
+    return super.canActivate(context);
+  }
+}
+```
+
+`*.controller.ts`
+
+```ts
+@Public()
+@Get()
+findAll() {
+  return [];
+}
+```
+
+</details>
+
 <!-- -_-  -->
 <details>
 <summary>项目启动</summary>

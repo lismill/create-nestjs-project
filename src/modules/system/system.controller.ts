@@ -10,7 +10,9 @@ import {
 import { SystemService } from './system.service';
 import { CreateSystemDto } from './dto/create-system.dto';
 import { UpdateSystemDto } from './dto/update-system.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('system')
 @Controller({
   path: 'system',
   version: '1',
