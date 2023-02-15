@@ -1,20 +1,16 @@
-import {
-  Controller,
-  Body,
-  Get,
-  Post,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Body, Get, Post, Request } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/decorator/public';
 import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './local-auth.guard';
+import { UserService } from '../user/user.service';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UserService,
+  ) {}
 
   /**
    * 登录
@@ -22,10 +18,20 @@ export class AuthController {
    * @returns
    */
   @Public()
-  @UseGuards(LocalAuthGuard)
   @Post('/login')
   async login(@Body() req: any) {
     return this.authService.login(req);
+  }
+
+  /**
+   * 注册
+   * @param req 注册信息
+   * @returns
+   */
+  @Public()
+  @Post('/register')
+  async register(@Body() req: any) {
+    return this.userService.create(req);
   }
 
   /**
