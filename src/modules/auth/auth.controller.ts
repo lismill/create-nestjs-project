@@ -6,13 +6,14 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../decorator/public';
 import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
+import { CreateUserDto } from '../user/dto/create-user.dto';
 
-@ApiTags('auth')
+@ApiTags('鉴权认证')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -22,25 +23,27 @@ export class AuthController {
 
   /**
    * 登录
-   * @param req 用户信息
+   * @param createUserDto 用户信息
    * @returns
    */
+  @ApiOperation({ summary: '登录' })
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('/login')
-  async login(@Body() req: any) {
-    return this.authService.login(req);
+  async login(@Body() createUserDto: CreateUserDto) {
+    return this.authService.login(createUserDto);
   }
 
   /**
    * 注册
-   * @param req 注册信息
+   * @param createUserDto 注册信息
    * @returns
    */
+  @ApiOperation({ summary: '注册' })
   @Public()
   @Post('/register')
-  async register(@Body() req: any) {
-    return this.userService.create(req);
+  async register(@Body() createUserDto: CreateUserDto) {
+    return this.userService.create(createUserDto);
   }
 
   /**
@@ -48,6 +51,7 @@ export class AuthController {
    * @param req 用户信息
    * @returns
    */
+  @ApiOperation({ summary: '校验 Token' })
   @Get('/check')
   async getProfile(@Request() req: any) {
     return await this.userService.findOne({
