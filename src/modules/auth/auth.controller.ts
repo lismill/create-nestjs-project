@@ -50,7 +50,7 @@ export class AuthController {
    */
   @Get('/check')
   async getProfile(@Request() req: any) {
-    return await this.userService.findPasswordByName({
+    return await this.userService.findOne({
       username: req.user.username,
     });
   }

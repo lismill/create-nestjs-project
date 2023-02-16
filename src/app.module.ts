@@ -4,8 +4,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
-import { CommonModule } from './modules/common/common.module';
-import { SystemModule } from './modules/system/system.module';
 import { UserModule } from './modules/user/user.module';
 
 @Module({
@@ -28,8 +26,6 @@ import { UserModule } from './modules/user/user.module';
       synchronize: process.env.DB_SYNCHRONIZE === 'true',
     }),
     AuthModule,
-    CommonModule,
-    SystemModule,
     UserModule,
   ],
   controllers: [],

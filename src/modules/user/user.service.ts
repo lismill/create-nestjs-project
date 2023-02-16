@@ -19,12 +19,12 @@ export class UserService {
     return await this.userRepository.save(createUserDto);
   }
 
-  async findAll() {
-    return await this.userRepository.find();
+  async findAll(params?: any) {
+    return await this.userRepository.find({ where: params });
   }
 
-  async findOne(id: number) {
-    return await this.userRepository.findOne({ where: { id } });
+  async findOne(params: any) {
+    return await this.userRepository.findOne({ where: params });
   }
 
   async findPasswordByName(params: any) {
