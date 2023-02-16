@@ -12,8 +12,7 @@ import { UserEntity } from '../user/entities/user.entity';
 import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy';
 
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { JWT_SECRET, JWT_EXPIRES } from './config';
 
 @Module({
   imports: [
@@ -21,8 +20,8 @@ dotenv.config();
     TypeOrmModule.forFeature([UserEntity]),
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_EXPIRES },
+      secret: JWT_SECRET,
+      signOptions: { expiresIn: JWT_EXPIRES },
     }),
   ],
   controllers: [AuthController],

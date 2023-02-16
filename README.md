@@ -719,6 +719,13 @@ import { AuthModule } from './modules/auth/auth.module';
 })
 ```
 
+`./modules/auth/config.ts`
+
+```ts
+export const JWT_SECRET = '0123456789abcdef';
+export const JWT_EXPIRES = '1h';
+```
+
 `./modules/auth/auth.module.ts`
 
 ```ts
@@ -736,8 +743,7 @@ import { UserEntity } from '../user/entities/user.entity';
 import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy';
 
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { JWT_EXPIRES, JwtStrategy } from './config';
 
 @Module({
   imports: [
@@ -745,8 +751,8 @@ dotenv.config();
     TypeOrmModule.forFeature([UserEntity]),
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_EXPIRES },
+      secret: JWT_SECRET,
+      signOptions: { expiresIn: JWT_EXPIRES },
     }),
   ],
   controllers: [AuthController],
@@ -850,9 +856,7 @@ export class AuthService {
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { JWT_SECRET } from './config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -860,7 +864,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET,
+      secretOrKey: JWT_SECRET,
     });
   }
 
