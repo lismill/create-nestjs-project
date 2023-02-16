@@ -49,7 +49,9 @@ export class AuthController {
    * @returns
    */
   @Get('/check')
-  getProfile(@Request() req: any) {
-    return req.user;
+  async getProfile(@Request() req: any) {
+    return await this.userService.findPasswordByName({
+      username: req.user.username,
+    });
   }
 }

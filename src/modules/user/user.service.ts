@@ -16,7 +16,7 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto) {
     createUserDto.password = Encrypt(createUserDto.password);
-    return this.userRepository.save(createUserDto);
+    return await this.userRepository.save(createUserDto);
   }
 
   async findAll() {
