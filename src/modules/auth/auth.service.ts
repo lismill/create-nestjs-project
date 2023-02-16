@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Decrypt } from '../../utils/crypto';
 
 import { UserService } from '../user/user.service';
 
@@ -19,7 +20,7 @@ export class AuthService {
   async validateUser(username: string, password: string): Promise<any> {
     const result = await this.userService.findPasswordByName({ username });
     if (!result) return null;
-    return result?.password === password ? result : null;
+    return Decrypt(result?.password) === password ? result : null;
   }
 
   /**

@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Encrypt } from '../../utils/crypto';
 
 @Injectable()
 export class UserService {
@@ -14,6 +15,7 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    createUserDto.password = Encrypt(createUserDto.password);
     return this.userRepository.save(createUserDto);
   }
 
