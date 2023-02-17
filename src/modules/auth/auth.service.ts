@@ -34,6 +34,6 @@ export class AuthService {
       username: user.username,
     });
     delete result.password;
-    return { ...result, access_token };
+    return { ...result, access_token: `Bearer ${access_token}` };
   }
 }
