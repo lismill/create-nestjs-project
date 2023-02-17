@@ -699,6 +699,66 @@ export class UserService {
 
 <!-- -_-  -->
 <details>
+<summary>配置查询数据分页、筛选、排序</summary>
+
+### 配置
+
+`./src/utils/pagination.ts`
+
+```ts
+interface IUsePagination {
+  page?: number;
+  size?: number;
+  where?: object;
+  relations?: Array<any>;
+  select?: object;
+  order?: object;
+}
+
+export const usePagination = ({
+  page = 1,
+  size = 10,
+  where = {},
+  relations = [],
+  select = [],
+  order = { createdAt: 'DESC' },
+}: IUsePagination) => {
+  return {
+    skip: +((+page - 1) * size),
+    take: +size,
+    relations,
+    select,
+    where,
+    order,
+  };
+};
+```
+
+### 使用
+
+`*.service.ts`
+
+```ts
+try {
+  const { page, size, username } = params;
+
+  const where: any = {};
+  username && (where.username = Like(`%${username}%`));
+
+  const [result, total] = await this.userRepository.findAndCount(
+    usePagination({ page, size, where }),
+  );
+
+  return { page, size, total, list: result };
+} catch ({ message }) {
+  throw new HttpException(message, HttpStatus.BAD_REQUEST);
+}
+```
+
+</details>
+
+<!-- -_-  -->
+<details>
 <summary>配置 JWT 接口认证</summary>
 
 ### 安装依赖

@@ -1,11 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 
 import { UserEntity } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Encrypt } from '../../utils/crypto';
+import { usePagination } from 'src/utils/pagination';
 
 @Injectable()
 export class UserService {
@@ -20,7 +21,20 @@ export class UserService {
   }
 
   async findAll(params?: any) {
-    return await this.userRepository.find({ where: params });
+    try {
+      const { page, size, username } = params;
+
+      const where: any = {};
+      username && (where.username = Like(`%${username}%`));
+
+      const [result, total] = await this.userRepository.findAndCount(
+        usePagination({ page, size, where }),
+      );
+
+      return { page, size, total, list: result };
+    } catch ({ message }) {
+      throw new HttpException(message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async findOne(params: any) {
