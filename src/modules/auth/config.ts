@@ -1,2 +1,2 @@
 export const JWT_SECRET = '0123456789abcdef';
-export const JWT_EXPIRES = '1h';
+export const JWT_EXPIRES = '2h';

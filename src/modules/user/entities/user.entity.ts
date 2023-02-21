@@ -12,9 +12,9 @@ export class UserEntity extends BaseEntity {
   @MaxLength(32)
   password: string;
 
-  @Column({ comment: '年龄', nullable: true })
+  @Column({ comment: '年龄', default: 0 })
   age: number;
 
-  @Column({ length: 16, comment: '城市', nullable: true })
+  @Column({ length: 16, comment: '城市', default: '' })
   city: string;
 }

@@ -16,8 +16,16 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    const result = await this.userRepository.findOne({
+      where: { username: createUserDto.username },
+    });
+    if (result) {
+      throw new HttpException('用户名已存在', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     createUserDto.password = Encrypt(createUserDto.password);
-    return await this.userRepository.save(createUserDto);
+    const user = await this.userRepository.save(createUserDto);
+    delete user.password;
+    return user;
   }
 
   async findAll(params?: any) {
