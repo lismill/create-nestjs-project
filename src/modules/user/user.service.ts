@@ -7,6 +7,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Encrypt } from '../../utils/crypto';
 import { usePagination } from 'src/utils/pagination';
+import { HttpExceptionMessage } from 'src/enum/message';
 
 @Injectable()
 export class UserService {
@@ -60,7 +61,10 @@ export class UserService {
   async update(id: number, updateUserDto: UpdateUserDto) {
     let result = await this.userRepository.findOne({ where: { id } });
     if (!result) {
-      throw new HttpException('DATA_NOT_FOUND', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        HttpExceptionMessage.DATA_NOT_EXIST,
+        HttpStatus.BAD_REQUEST,
+      );
     }
     delete updateUserDto?.id;
     result = { ...result, ...updateUserDto };
@@ -70,7 +74,10 @@ export class UserService {
   async remove(id: number) {
     const result = await this.userRepository.findOne({ where: { id } });
     if (!result) {
-      throw new HttpException('DATA_NOT_FOUND', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        HttpExceptionMessage.DATA_NOT_EXIST,
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return await this.userRepository.remove(result);
   }

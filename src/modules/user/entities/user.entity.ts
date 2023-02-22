@@ -2,7 +2,7 @@ import { MaxLength, MinLength } from 'class-validator';
 import { Entity, Column } from 'typeorm';
 import { BaseEntity } from '../../../entity/index';
 
-@Entity({ name: 'user' })
+@Entity({ name: 'l_user' })
 export class UserEntity extends BaseEntity {
   @Column({ length: 16, comment: '名称', unique: true })
   username: string;

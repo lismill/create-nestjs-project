@@ -4,8 +4,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
-import { UserModule } from './modules/user/user.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { UserModule } from './modules/user/user.module';
+import { RoleModule } from './modules/role/role.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { UploadModule } from './modules/upload/upload.module';
     AuthModule,
     UploadModule,
     UserModule,
+    RoleModule,
   ],
   controllers: [],
   providers: [
