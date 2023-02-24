@@ -1,4 +1,4 @@
-import { VersioningType } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -26,6 +26,8 @@ async function bootstrap() {
 
   // http-exception.filter
   app.useGlobalFilters(new HttpExceptionFilter());
+
+  app.useGlobalPipes(new ValidationPipe());
 
   // Swagger
   const options = new DocumentBuilder()

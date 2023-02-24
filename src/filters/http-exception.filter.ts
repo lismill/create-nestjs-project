@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
+import dayjs from 'dayjs';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -14,17 +15,27 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse();
     const request = ctx.getRequest();
 
-    const message = exception.message;
-    Logger.log('错误提示', message);
+    // 异常信息
+    const exceptionResponse: any = exception.getResponse();
+    delete exceptionResponse.statusCode;
+    typeof exceptionResponse === 'object' &&
+      (exceptionResponse.status = exception.getStatus());
+
+    // 异常日志
+    Logger.log(
+      JSON.stringify(exceptionResponse),
+      `${request.method} - ${request.url} - ${dayjs().format(
+        'YYYY-MM-DD HH:mm:ss:SSS',
+      )}`,
+    );
+
+    // 返回信息
     const errorResponse = {
       code: -1,
       message: '请求失败',
       timestamp: Date.now(),
       url: request.originalUrl,
-      data: {
-        code: exception.getStatus(),
-        message,
-      },
+      data: exception.getResponse(),
     };
     const status =
       exception instanceof HttpException

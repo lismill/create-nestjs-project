@@ -56,7 +56,7 @@ export class UploadController {
 
     // 保存文件
     const list: Array<{ url: string; name: string }> = [];
-    files.forEach((item) => {
+    files?.forEach((item) => {
       const PATH = `/upload/${dayjs().format('YYYY-MM-DD')}/${Date.now()}.${
         item.originalname
       }`;
