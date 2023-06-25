@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Body,
-  Get,
-  Post,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Body, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../decorator/public';
 import { LocalAuthGuard } from './local-auth.guard';
@@ -16,10 +9,7 @@ import { CreateUserDto } from '../user/dto/create-user.dto';
 @ApiTags('鉴权认证')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly authService: AuthService, private readonly userService: UserService) {}
 
   /**
    * 登录

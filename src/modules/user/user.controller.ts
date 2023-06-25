@@ -1,45 +1,37 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-@ApiTags('用户管理')
 @Controller('user')
+@ApiTags('用户管理')
+@ApiBearerAuth()
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly UserStrvice: UserService) {}
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+    return this.UserStrvice.create(createUserDto);
   }
 
   @Get()
   findAll(@Query() query: any) {
-    return this.userService.findAll(query);
+    return this.UserStrvice.findAll(query);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.userService.findOne({ id: +id });
+    return this.UserStrvice.findOne({ id: +id });
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+    return this.UserStrvice.update(+id, updateUserDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+    return this.UserStrvice.remove(+id);
   }
 }

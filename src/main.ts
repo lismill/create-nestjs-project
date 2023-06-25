@@ -35,6 +35,7 @@ async function bootstrap() {
     .setDescription('create-nestjs-project')
     .setTermsOfService('https://docs.nestjs.cn/8/introduction')
     .setVersion('0.0.1')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('/docs', app, document);

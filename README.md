@@ -105,10 +105,7 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint/eslint-plugin'],
-  extends: [
-    'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended',
-  ],
+  extends: ['plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
   root: true,
   env: {
     node: true,
@@ -395,25 +392,15 @@ console.log(process.env.NAMES);
 `./interceptor/transform.interceptor.ts`
 
 ```ts
-import {
-  Injectable,
-  NestInterceptor,
-  CallHandler,
-  ExecutionContext,
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, CallHandler, ExecutionContext } from '@nestjs/common';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 interface Response<T> {
   data: T;
 }
 @Injectable()
-export class TransformInterceptor<T>
-  implements NestInterceptor<T, Response<T>>
-{
-  intercept(
-    context: ExecutionContext,
-    next: CallHandler<T>,
-  ): Observable<Response<T>> {
+export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> {
+  intercept(context: ExecutionContext, next: CallHandler<T>): Observable<Response<T>> {
     return next.handle().pipe(
       map((data) => {
         return {
@@ -430,14 +417,7 @@ export class TransformInterceptor<T>
 `./filters/http-exception.filter.ts`
 
 ```ts
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  HttpStatus,
-  Logger,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -457,10 +437,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         error: message,
       },
     };
-    const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
+    const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
     // 设置返回的状态码、请求头、发送错误信息
     response.status(status);
     response.header('Content-Type', 'application/json; charset=utf-8');
@@ -502,7 +479,7 @@ TypeOrmModule.forRoot({
   type: 'mysql',
   host: process.env.DB_HOST,
   port: process.env.DB_PORT as unknown as number,
-  username: process.env.DB_USERNAME,
+  name: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
   entities: ['dist/**/*.entity{.ts,.js}'],
@@ -514,12 +491,7 @@ TypeOrmModule.forRoot({
 `./src/entity/index.ts`
 
 ```ts
-import {
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-} from 'typeorm';
+import { PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 
 export abstract class BaseEntity {
   @PrimaryGeneratedColumn()
@@ -601,15 +573,7 @@ export class UserModule {}
 `./src/modules/user/user.controller.ts`
 
 ```ts
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -633,7 +597,7 @@ export class UserController {
     return this.userService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(+id, updateUserDto);
   }
@@ -740,14 +704,12 @@ export const usePagination = ({
 
 ```ts
 try {
-  const { page, size, username } = params;
+  const { page, size, name } = params;
 
   const where: any = {};
-  username && (where.username = Like(`%${username}%`));
+  name && (where.name = Like(`%${name}%`));
 
-  const [result, total] = await this.userRepository.findAndCount(
-    usePagination({ page, size, where }),
-  );
+  const [result, total] = await this.userRepository.findAndCount(usePagination({ page, size, where }));
 
   return { page, size, total, list: result };
 } catch ({ message }) {
@@ -778,14 +740,7 @@ app.useGlobalPipes(new ValidationPipe());
 `src/filters/http-exception.filter.ts`
 
 ```ts
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  HttpStatus,
-  Logger,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import dayjs from 'dayjs';
 
 @Catch(HttpException)
@@ -798,15 +753,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     // 异常信息
     const exceptionResponse: any = exception.getResponse();
     delete exceptionResponse.statusCode;
-    typeof exceptionResponse === 'object' &&
-      (exceptionResponse.status = exception.getStatus());
+    typeof exceptionResponse === 'object' && (exceptionResponse.status = exception.getStatus());
 
     // 异常日志
     Logger.log(
       JSON.stringify(exceptionResponse),
-      `${request.method} - ${request.url} - ${dayjs().format(
-        'YYYY-MM-DD HH:mm:ss:SSS',
-      )}`,
+      `${request.method} - ${request.url} - ${dayjs().format('YYYY-MM-DD HH:mm:ss:SSS')}`,
     );
 
     // 返回信息
@@ -817,10 +769,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       url: request.originalUrl,
       data: exception.getResponse(),
     };
-    const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
+    const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
     // 设置返回的状态码、请求头、发送错误信息
     response.status(status);
     response.header('Content-Type', 'application/json; charset=utf-8');
@@ -836,7 +785,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 ```ts
 @IsNotEmpty({ message: '用户名不能为空' })
 @IsString()
-username: string;
+name: string;
 ```
 
 </details>
@@ -909,14 +858,7 @@ export class AuthModule {}
 `./modules/auth/auth.controller.ts`
 
 ```ts
-import {
-  Controller,
-  Body,
-  Get,
-  Post,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Body, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -961,19 +903,16 @@ import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly userService: UserService,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly userService: UserService, private readonly jwtService: JwtService) {}
 
   /**
    * 校验用户
-   * @param username 用户名
+   * @param name 用户名
    * @param password 密码
    * @returns
    */
-  async validateUser(username: string, password: string): Promise<any> {
-    const result = await this.userService.findPasswordByName({ username });
+  async validateUser(name: string, password: string): Promise<any> {
+    const result = await this.userService.findPasswordByName({ name });
     if (!result) return null;
     return result?.password === password ? result : null;
   }
@@ -986,7 +925,7 @@ export class AuthService {
   async login(user: any): Promise<any> {
     const access_token = this.jwtService.sign(user);
     const result = await this.userService.findPasswordByName({
-      username: user.username,
+      name: user.name,
     });
     delete result.password;
     return { ...result, access_token };
@@ -1042,8 +981,8 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     super();
   }
 
-  async validate(username: string, password: string): Promise<any> {
-    const user = await this.authService.validateUser(username, password);
+  async validate(name: string, password: string): Promise<any> {
+    const user = await this.authService.validateUser(name, password);
     if (!user) throw new UnauthorizedException();
     return user;
   }
@@ -1067,7 +1006,7 @@ async findPasswordByName(params: any) {
   return await this.userRepository
     .createQueryBuilder()
     .select('*')
-    .where('username = :username', params)
+    .where('name = :name', params)
     .getRawOne();
 }
 ```
@@ -1218,14 +1157,7 @@ app.useStaticAssets('public');
 
 ```ts
 import fs from 'fs';
-import {
-  Controller,
-  HttpException,
-  HttpStatus,
-  Post,
-  UploadedFiles,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, HttpException, HttpStatus, Post, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -1241,14 +1173,9 @@ export class UploadController {
     files: Array<Express.Multer.File>,
   ) {
     // 文件大小
-    const FILE_MAX = files.find(
-      (file: Express.Multer.File) => file.size > 1024 * 1024 * 3,
-    );
+    const FILE_MAX = files.find((file: Express.Multer.File) => file.size > 1024 * 1024 * 3);
     if (FILE_MAX) {
-      throw new HttpException(
-        '上传文件不能超过3M',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('上传文件不能超过3M', HttpStatus.INTERNAL_SERVER_ERROR);
     }
     // 文件类型校验
     const FILE_TYPE = files.find(
@@ -1267,18 +1194,13 @@ export class UploadController {
         ].includes(file.mimetype),
     );
     if (FILE_TYPE) {
-      throw new HttpException(
-        '上传文件类型有误',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('上传文件类型有误', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // 保存文件
     const list: Array<{ url: string; name: string }> = [];
     files.forEach((item) => {
-      const PATH = `/upload/${dayjs().format('YYYY-MM-DD')}/${Date.now()}.${
-        item.originalname
-      }`;
+      const PATH = `/upload/${dayjs().format('YYYY-MM-DD')}/${Date.now()}.${item.originalname}`;
       list.push({ url: PATH, name: item.originalname });
       fs.writeFileSync(`./public${PATH}`, item.buffer);
     });

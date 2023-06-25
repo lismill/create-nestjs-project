@@ -1,9 +1,6 @@
 import { ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { LoginUserDto } from './login-user.dto';
-export class CreateUserDto extends PartialType(LoginUserDto) {
-  @ApiPropertyOptional({ description: '用户ID', example: '' })
-  sassID?: string;
-
+export class RegistryUserDto extends PartialType(LoginUserDto) {
   @ApiPropertyOptional({ description: '昵称', example: '' })
   nickname?: string;
 

@@ -13,7 +13,7 @@ export const usePagination = ({
   where = {},
   relations = [],
   select = [],
-  order = { createdAt: 'DESC' },
+  order = { updateAt: 'DESC' },
 }: IUsePagination) => {
   return {
     skip: +((+page - 1) * size),

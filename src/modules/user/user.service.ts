@@ -7,7 +7,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Encrypt } from '../../utils/crypto';
 import { usePagination } from 'src/utils/pagination';
-import { HttpExceptionMessage } from 'src/enum/message';
+import { HttpExceptionMessage } from 'src/enum';
 
 @Injectable()
 export class UserService {
@@ -18,11 +18,12 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto) {
     const result = await this.userRepository.findOne({
-      where: { username: createUserDto.username },
+      where: { username: createUserDto.username, phone: createUserDto.phone },
     });
     if (result) {
-      throw new HttpException('用户名已存在', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(HttpExceptionMessage.DATA_ALREADY_EXIST, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    createUserDto.sassID = Date.now().toString();
     createUserDto.password = Encrypt(createUserDto.password);
     const user = await this.userRepository.save(createUserDto);
     delete user.password;
@@ -31,14 +32,13 @@ export class UserService {
 
   async findAll(params?: any) {
     try {
-      const { page, size, username } = params;
+      const { page, size, username, token } = params;
 
       const where: any = {};
       username && (where.username = Like(`%${username}%`));
+      token && (where.token = Like(`%${token}%`));
 
-      const [result, total] = await this.userRepository.findAndCount(
-        usePagination({ page, size, where }),
-      );
+      const [result, total] = await this.userRepository.findAndCount(usePagination({ page, size, where }));
 
       return { page, size, total, list: result };
     } catch ({ message }) {
@@ -51,33 +51,27 @@ export class UserService {
   }
 
   async findPasswordByName(params: any) {
-    return await this.userRepository
-      .createQueryBuilder()
-      .select('*')
-      .where('username = :username', params)
-      .getRawOne();
+    return await this.userRepository.createQueryBuilder().select('*').where('username = :username', params).getRawOne();
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     let result = await this.userRepository.findOne({ where: { id } });
     if (!result) {
-      throw new HttpException(
-        HttpExceptionMessage.DATA_NOT_EXIST,
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException(HttpExceptionMessage.DATA_NOT_EXIST, HttpStatus.BAD_REQUEST);
     }
-    delete updateUserDto?.id;
+    if (updateUserDto?.password) {
+      updateUserDto.password = Encrypt(updateUserDto.password);
+    }
     result = { ...result, ...updateUserDto };
-    return await this.userRepository.save(result);
+    const user = await this.userRepository.save(result);
+    delete user.password;
+    return user;
   }
 
   async remove(id: number) {
     const result = await this.userRepository.findOne({ where: { id } });
     if (!result) {
-      throw new HttpException(
-        HttpExceptionMessage.DATA_NOT_EXIST,
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException(HttpExceptionMessage.DATA_NOT_EXIST, HttpStatus.BAD_REQUEST);
     }
     return await this.userRepository.remove(result);
   }

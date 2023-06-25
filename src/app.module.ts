@@ -2,11 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
+import { AuthModule } from './modules/auth/auth.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { UserModule } from './modules/user/user.module';
-import { RoleModule } from './modules/role/role.module';
 
 @Module({
   imports: [
@@ -27,10 +26,9 @@ import { RoleModule } from './modules/role/role.module';
       autoLoadEntities: process.env.DB_AUTOLOADENTITIES === 'true',
       synchronize: process.env.DB_SYNCHRONIZE === 'true',
     }),
-    AuthModule,
     UploadModule,
+    AuthModule,
     UserModule,
-    RoleModule,
   ],
   controllers: [],
   providers: [

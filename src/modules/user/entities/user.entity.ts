@@ -4,7 +4,9 @@ import { BaseEntity } from '../../../entity/index';
 
 @Entity({ name: 'l_user' })
 export class UserEntity extends BaseEntity {
-  @Column({ length: 16, comment: '名称', unique: true })
+  @Column({ comment: '用户名称', default: '' })
+  @MinLength(8)
+  @MaxLength(16)
   username: string;
 
   @Column({ comment: '密码', select: false })
@@ -12,9 +14,18 @@ export class UserEntity extends BaseEntity {
   @MaxLength(32)
   password: string;
 
-  @Column({ comment: '年龄', default: 0 })
-  age: number;
+  @Column({ length: 11, comment: '手机号', default: '' })
+  phone: string;
 
-  @Column({ length: 16, comment: '城市', default: '' })
-  city: string;
+  @Column({ length: 16, comment: '昵称', default: '' })
+  nickname: string;
+
+  @Column({ length: 256, comment: '头像', default: '' })
+  image: string;
+
+  @Column({ comment: '用户类型', default: 1 })
+  type: number;
+
+  @Column({ comment: '用户状态', default: 1 })
+  status: number;
 }
